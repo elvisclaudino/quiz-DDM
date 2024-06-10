@@ -49,12 +49,18 @@ fun QuizScreen(navController: NavController, database: AppDatabase, playerName: 
     var isVisible by remember { mutableStateOf(true) }
     var startTime by remember { mutableStateOf(0L) }
     var progress by remember { mutableStateOf(1f) }
+    var selectedOptionIndex by remember { mutableStateOf<Int?>(null) }
+    var backgroundColor by remember { mutableStateOf(Color.Transparent) }
+    var textColor by remember { mutableStateOf(Color.White) }
 
     LaunchedEffect(currentQuestionIndex) {
         isVisible = true
         shuffledOptions = shuffledQuestions[currentQuestionIndex].shuffledOptions()
         startTime = System.currentTimeMillis()
         progress = 1f
+        selectedOptionIndex = null
+        backgroundColor = Color.Transparent
+        textColor = Color.White
         coroutineScope.launch {
             while (progress > 0) {
                 val elapsedTime = System.currentTimeMillis() - startTime
@@ -136,26 +142,43 @@ fun QuizScreen(navController: NavController, database: AppDatabase, playerName: 
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth().background(Color.Transparent).border(2.dp, Color.White, RoundedCornerShape(8.dp)).padding(20.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(2.dp, Color.White, RoundedCornerShape(8.dp))
+                        .background(
+                            if (selectedOptionIndex == index) backgroundColor else Color.Transparent, RoundedCornerShape(8.dp)
+                        )
+                        .padding(20.dp)
                 ) {
                     Text(
                         text = "${('a' + index).toUpperCase()}.",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White,
+                        color = if (selectedOptionIndex == index) textColor else Color.White,
                         modifier = Modifier.padding(end = 8.dp)
                     )
-                Text(
-                    text = option,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.White,
-                    modifier = Modifier
-                        .clickable {
-                            handleAnswerSelected(navController, database, playerName, coroutineScope, option, question, score, currentQuestionIndex, shuffledQuestions, startTime) { newScore, newIndex ->
-                                score = newScore
-                                currentQuestionIndex = newIndex
+                    Text(
+                        text = option,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = if (selectedOptionIndex == index) textColor else Color.White,
+                        modifier = Modifier
+                            .clickable {
+                                selectedOptionIndex = index
+                                if (option == question.options[question.correctAnswerIndex]) {
+                                    backgroundColor = Color.Green
+                                    textColor = Color.Black
+                                } else {
+                                    backgroundColor = Color.Red
+                                    textColor = Color.Black
+                                }
+                                coroutineScope.launch {
+                                    kotlinx.coroutines.delay(1000)
+                                    handleAnswerSelected(navController, database, playerName, coroutineScope, option, question, score, currentQuestionIndex, shuffledQuestions, startTime) { newScore, newIndex ->
+                                        score = newScore
+                                        currentQuestionIndex = newIndex
+                                    }
+                                }
                             }
-                        }
-                )}
+                    )}
             }
         }
     }}
