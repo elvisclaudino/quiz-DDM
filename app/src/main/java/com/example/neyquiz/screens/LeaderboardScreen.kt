@@ -4,6 +4,9 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -69,6 +72,25 @@ fun LeaderboardScreen(navController: NavController, database: AppDatabase) {
                         )
                     }
                 }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = { navController.navigate("main_menu") },
+                modifier = Modifier.padding(16.dp)
+                    .width(200.dp)
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(
+                    Color.Transparent,
+                    contentColor = Color.White,
+                ),
+                shape = RoundedCornerShape(8.dp),
+                border = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.5f).run {
+                    ButtonDefaults.outlinedButtonBorder
+                }
+            ) {
+                Text("Voltar ao Menu")
             }
         }
     }

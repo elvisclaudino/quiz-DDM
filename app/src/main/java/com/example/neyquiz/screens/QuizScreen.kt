@@ -35,7 +35,9 @@ import com.example.neyquiz.model.Question
 import com.example.neyquiz.model.questions
 import com.example.neyquiz.ui.theme.NeyquizTheme
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun QuizScreen(navController: NavController, database: AppDatabase, playerName: String) {
@@ -56,7 +58,11 @@ fun QuizScreen(navController: NavController, database: AppDatabase, playerName: 
         coroutineScope.launch {
             while (progress > 0) {
                 val elapsedTime = System.currentTimeMillis() - startTime
-                progress = 1f - elapsedTime.toFloat() / 10000f // 10 seconds to answer
+                val newProgress = 1f - elapsedTime.toFloat() / 10000f
+
+                withContext(Dispatchers.Main) {
+                    progress = newProgress
+                }
                 kotlinx.coroutines.delay(100)
             }
             if (progress <= 0) {
@@ -104,21 +110,20 @@ fun QuizScreen(navController: NavController, database: AppDatabase, playerName: 
                     contentScale = ContentScale.Crop,
                 )
 
+                LinearProgressIndicator(
+                    progress = progress,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(20.dp),
+                    color = Color.White,
+                    trackColor = Color.Black
+                )
+
                 Text(
                     text = question.text,
                     color = Color.White,
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(16.dp)
-                )
-
-                LinearProgressIndicator(
-                    progress = progress,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(8.dp)
-                        .clip(RoundedCornerShape(4.dp))
-                        .padding(top = 16.dp),
-                    color = Color.White
                 )
             }
         }
