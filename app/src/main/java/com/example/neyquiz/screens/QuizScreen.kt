@@ -1,19 +1,26 @@
 package com.example.neyquiz.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -63,6 +70,10 @@ fun QuizScreen(navController: NavController, database: AppDatabase, playerName: 
 
     val question = shuffledQuestions[currentQuestionIndex]
 
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = Color.Black
+    ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -71,26 +82,33 @@ fun QuizScreen(navController: NavController, database: AppDatabase, playerName: 
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         AnimatedVisibility(
-            visible = isVisible,
-            enter = fadeIn(),
-            exit = fadeOut()
+            visible = currentQuestionIndex < questions.size,
+            enter = slideInHorizontally(
+                initialOffsetX = { -it },
+                animationSpec = tween(700)
+            ),
+            exit = slideOutHorizontally(
+                targetOffsetX = { -it },
+                animationSpec = tween(700)
+            )
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = question.text,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(16.dp)
-                )
-
                 Image(
                     painter = rememberImagePainter(question.imageUrl),
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(200.dp),
-                    contentScale = ContentScale.Crop
+                        .height(300.dp),
+                    contentScale = ContentScale.Crop,
+                )
+
+                Text(
+                    text = question.text,
+                    color = Color.White,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(16.dp)
                 )
 
                 LinearProgressIndicator(
@@ -100,7 +118,7 @@ fun QuizScreen(navController: NavController, database: AppDatabase, playerName: 
                         .height(8.dp)
                         .clip(RoundedCornerShape(4.dp))
                         .padding(top = 16.dp),
-                    color = MaterialTheme.colorScheme.primary
+                    color = Color.White
                 )
             }
         }
@@ -111,22 +129,31 @@ fun QuizScreen(navController: NavController, database: AppDatabase, playerName: 
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth().background(Color.Transparent).border(2.dp, Color.White, RoundedCornerShape(8.dp)).padding(20.dp)
+                ) {
+                    Text(
+                        text = "${('a' + index).toUpperCase()}.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White,
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
                 Text(
                     text = option,
                     style = MaterialTheme.typography.bodyLarge,
+                    color = Color.White,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
                         .clickable {
                             handleAnswerSelected(navController, database, playerName, coroutineScope, option, question, score, currentQuestionIndex, shuffledQuestions, startTime) { newScore, newIndex ->
                                 score = newScore
                                 currentQuestionIndex = newIndex
                             }
                         }
-                )
+                )}
             }
         }
-    }
+    }}
 }
 
 private fun handleAnswerSelected(

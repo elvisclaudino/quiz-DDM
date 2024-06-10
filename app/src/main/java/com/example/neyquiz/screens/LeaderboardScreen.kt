@@ -5,11 +5,14 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -33,28 +36,44 @@ fun LeaderboardScreen(navController: NavController, database: AppDatabase) {
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = Color.Black
     ) {
-        Text(text = "Leaderboard", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(16.dp))
-
-        AnimatedVisibility(
-            visible = isVisible,
-            enter = fadeIn(),
-            exit = fadeOut()
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column {
-                scores.forEach { score ->
-                    Text(text = "${score.name}: ${score.score}", style = MaterialTheme.typography.bodyLarge)
+            Text(
+                text = "Leaderboard",
+                style = MaterialTheme.typography.headlineLarge,
+                modifier = Modifier.padding(16.dp),
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                Column {
+                    scores.forEachIndexed { index, score ->
+                        Text(
+                            text = "${index + 1}. ${score.name}: ${score.score}",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = Color.White
+                        )
+                    }
                 }
             }
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
