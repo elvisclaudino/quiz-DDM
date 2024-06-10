@@ -1,5 +1,8 @@
 package com.example.neyquiz.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -29,8 +32,10 @@ fun QuizScreen(navController: NavController, database: AppDatabase, playerName: 
     var shuffledQuestions by remember { mutableStateOf(questions.shuffled()) }
     var shuffledOptions by remember { mutableStateOf(shuffledQuestions[currentQuestionIndex].shuffledOptions()) }
     val coroutineScope = rememberCoroutineScope()
+    var isVisible by remember { mutableStateOf(true) }
 
     LaunchedEffect(currentQuestionIndex) {
+        isVisible = true
         shuffledOptions = shuffledQuestions[currentQuestionIndex].shuffledOptions()
     }
 
@@ -43,42 +48,61 @@ fun QuizScreen(navController: NavController, database: AppDatabase, playerName: 
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = question.text,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(16.dp)
-        )
-
-        Image(
-            painter = rememberImagePainter(question.imageUrl),
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp),
-            contentScale = ContentScale.Crop
-        )
-
-        shuffledOptions.forEachIndexed { index, option ->
+        AnimatedVisibility(
+            visible = isVisible,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
             Text(
-                text = option,
+                text = question.text,
                 style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
+
+        AnimatedVisibility(
+            visible = isVisible,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            Image(
+                painter = rememberImagePainter(question.imageUrl),
+                contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp)
-                    .clickable {
-                        if (option == question.options[question.correctAnswerIndex]) {
-                            score++
-                        }
-                        if (currentQuestionIndex < shuffledQuestions.size - 1) {
-                            currentQuestionIndex++
-                        } else {
-                            coroutineScope.launch {
-                                database.playerScoreDao().insert(PlayerScore(name = playerName, score = score))
-                                navController.navigate("leaderboard_screen")
+                    .height(200.dp),
+                contentScale = ContentScale.Crop
+            )
+        }
+
+        shuffledOptions.forEachIndexed { index, option ->
+            AnimatedVisibility(
+                visible = isVisible,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                Text(
+                    text = option,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .clickable {
+                            isVisible = false
+                            if (option == question.options[question.correctAnswerIndex]) {
+                                score++
+                            }
+                            if (currentQuestionIndex < shuffledQuestions.size - 1) {
+                                currentQuestionIndex++
+                            } else {
+                                coroutineScope.launch {
+                                    database.playerScoreDao().insert(PlayerScore(name = playerName, score = score))
+                                    navController.navigate("leaderboard_screen")
+                                }
                             }
                         }
-                    }
-            )
+                )
+            }
         }
     }
 }

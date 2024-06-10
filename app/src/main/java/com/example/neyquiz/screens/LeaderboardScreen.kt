@@ -1,5 +1,8 @@
 package com.example.neyquiz.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -21,10 +24,12 @@ import kotlinx.coroutines.launch
 fun LeaderboardScreen(navController: NavController, database: AppDatabase) {
     var scores by remember { mutableStateOf(emptyList<PlayerScore>()) }
     val coroutineScope = rememberCoroutineScope()
+    var isVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         coroutineScope.launch {
             scores = database.playerScoreDao().getTopScores()
+            isVisible = true
         }
     }
 
@@ -37,8 +42,16 @@ fun LeaderboardScreen(navController: NavController, database: AppDatabase) {
     ) {
         Text(text = "Leaderboard", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(16.dp))
 
-        scores.forEach { score ->
-            Text(text = "${score.name}: ${score.score}", style = MaterialTheme.typography.bodyLarge)
+        AnimatedVisibility(
+            visible = isVisible,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            Column {
+                scores.forEach { score ->
+                    Text(text = "${score.name}: ${score.score}", style = MaterialTheme.typography.bodyLarge)
+                }
+            }
         }
     }
 }
