@@ -66,14 +66,14 @@ fun MainMenuScreen(navController: NavController) {
                         navController.navigate("quiz_screen")
                     },
                     modifier = Modifier.padding(16.dp)
-                        .width(200.dp)
-                        .height(50.dp),
+                        .width(280.dp)
+                        .height(70.dp),
                     colors = ButtonDefaults.buttonColors(
                         Color.Transparent,
                         contentColor = Color.White,
                     ),
                     shape = RoundedCornerShape(8.dp),
-                    border = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.5f).run {
+                    border = androidx.compose.ui.graphics.Color.White.copy(alpha = 1f).run {
                         ButtonDefaults.outlinedButtonBorder
                     }
                 ) {
@@ -92,14 +92,14 @@ fun MainMenuScreen(navController: NavController) {
                         navController.navigate("leaderboard_screen")
                     },
                     modifier = Modifier.padding(16.dp)
-                        .width(200.dp)
-                        .height(50.dp),
+                        .width(280.dp)
+                        .height(70.dp),
                     colors = ButtonDefaults.buttonColors(
                         Color.Transparent,
                         contentColor = Color.White,
                     ),
                     shape = RoundedCornerShape(8.dp),
-                    border = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.5f).run {
+                    border = androidx.compose.ui.graphics.Color.White.copy(alpha = 1f).run {
                         ButtonDefaults.outlinedButtonBorder
                     }
                 ) {

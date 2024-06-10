@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,8 +52,9 @@ fun NameInputScreen(navController: NavController, onNameEntered: (String) -> Uni
                 exit = fadeOut()
             ) {
                 Text(
-                    text = "Insira seu nome",
+                    text = "Qual o seu nome?",
                     style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
                     color = Color.White,
                     modifier = Modifier.padding(16.dp)
                 )
@@ -102,7 +104,7 @@ fun NameInputScreen(navController: NavController, onNameEntered: (String) -> Uni
                         }
                     },
                     modifier = Modifier.padding(16.dp)
-                        .width(200.dp)
+                        .width(280.dp)
                         .height(50.dp),
                     colors = ButtonDefaults.buttonColors(
                         Color.Transparent,
