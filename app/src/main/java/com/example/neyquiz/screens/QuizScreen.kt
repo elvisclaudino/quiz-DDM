@@ -6,11 +6,14 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -21,8 +24,10 @@ import androidx.room.Room
 import coil.compose.rememberImagePainter
 import com.example.neyquiz.data.AppDatabase
 import com.example.neyquiz.data.PlayerScore
+import com.example.neyquiz.model.Question
 import com.example.neyquiz.model.questions
 import com.example.neyquiz.ui.theme.NeyquizTheme
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -33,10 +38,27 @@ fun QuizScreen(navController: NavController, database: AppDatabase, playerName: 
     var shuffledOptions by remember { mutableStateOf(shuffledQuestions[currentQuestionIndex].shuffledOptions()) }
     val coroutineScope = rememberCoroutineScope()
     var isVisible by remember { mutableStateOf(true) }
+    var startTime by remember { mutableStateOf(0L) }
+    var progress by remember { mutableStateOf(1f) }
 
     LaunchedEffect(currentQuestionIndex) {
         isVisible = true
         shuffledOptions = shuffledQuestions[currentQuestionIndex].shuffledOptions()
+        startTime = System.currentTimeMillis()
+        progress = 1f
+        coroutineScope.launch {
+            while (progress > 0) {
+                val elapsedTime = System.currentTimeMillis() - startTime
+                progress = 1f - elapsedTime.toFloat() / 10000f // 10 seconds to answer
+                kotlinx.coroutines.delay(100)
+            }
+            if (progress <= 0) {
+                handleAnswerSelected(navController, database, playerName, coroutineScope, "", shuffledQuestions[currentQuestionIndex], score, currentQuestionIndex, shuffledQuestions, startTime) { newScore, newIndex ->
+                    score = newScore
+                    currentQuestionIndex = newIndex
+                }
+            }
+        }
     }
 
     val question = shuffledQuestions[currentQuestionIndex]
@@ -53,26 +75,34 @@ fun QuizScreen(navController: NavController, database: AppDatabase, playerName: 
             enter = fadeIn(),
             exit = fadeOut()
         ) {
-            Text(
-                text = question.text,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(16.dp)
-            )
-        }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = question.text,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(16.dp)
+                )
 
-        AnimatedVisibility(
-            visible = isVisible,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            Image(
-                painter = rememberImagePainter(question.imageUrl),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp),
-                contentScale = ContentScale.Crop
-            )
+                Image(
+                    painter = rememberImagePainter(question.imageUrl),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentScale = ContentScale.Crop
+                )
+
+                LinearProgressIndicator(
+                    progress = progress,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .padding(top = 16.dp),
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
         }
 
         shuffledOptions.forEachIndexed { index, option ->
@@ -88,23 +118,49 @@ fun QuizScreen(navController: NavController, database: AppDatabase, playerName: 
                         .fillMaxWidth()
                         .padding(8.dp)
                         .clickable {
-                            isVisible = false
-                            if (option == question.options[question.correctAnswerIndex]) {
-                                score++
-                            }
-                            if (currentQuestionIndex < shuffledQuestions.size - 1) {
-                                currentQuestionIndex++
-                            } else {
-                                coroutineScope.launch {
-                                    database.playerScoreDao().insert(PlayerScore(name = playerName, score = score))
-                                    navController.navigate("leaderboard_screen")
-                                }
+                            handleAnswerSelected(navController, database, playerName, coroutineScope, option, question, score, currentQuestionIndex, shuffledQuestions, startTime) { newScore, newIndex ->
+                                score = newScore
+                                currentQuestionIndex = newIndex
                             }
                         }
                 )
             }
         }
     }
+}
+
+private fun handleAnswerSelected(
+    navController: NavController,
+    database: AppDatabase,
+    playerName: String,
+    coroutineScope: CoroutineScope,
+    option: String,
+    question: Question,
+    currentScore: Int,
+    currentQuestionIndex: Int,
+    shuffledQuestions: List<Question>,
+    startTime: Long,
+    onScoreUpdate: (Int, Int) -> Unit
+) {
+    val elapsedTime = System.currentTimeMillis() - startTime
+    var score = currentScore
+    var questionIndex = currentQuestionIndex
+
+    if (option == question.options[question.correctAnswerIndex]) {
+        val questionScore = (1000 - elapsedTime / 10).coerceAtLeast(100)
+        score += questionScore.toInt()
+    }
+
+    if (questionIndex < shuffledQuestions.size - 1) {
+        questionIndex++
+    } else {
+        coroutineScope.launch {
+            database.playerScoreDao().insert(PlayerScore(name = playerName, score = score))
+            navController.navigate("leaderboard_screen")
+        }
+    }
+
+    onScoreUpdate(score, questionIndex)
 }
 
 @Preview(showBackground = true)
@@ -116,3 +172,5 @@ fun QuizScreenPreview() {
         QuizScreen(navController, database, "Player")
     }
 }
+
+

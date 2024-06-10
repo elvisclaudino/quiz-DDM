@@ -20,6 +20,7 @@ import com.example.neyquiz.data.AppDatabase
 import com.example.neyquiz.screens.LeaderboardScreen
 import com.example.neyquiz.screens.MainMenuScreen
 import com.example.neyquiz.screens.QuizScreen
+import com.example.neyquiz.screens.NameInputScreen
 import com.example.neyquiz.ui.theme.NeyquizTheme
 
 @ExperimentalAnimationApi
@@ -34,18 +35,28 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 var playerName by remember { mutableStateOf("") }
 
-                NavHost(navController = navController, startDestination = "main_menu") {
+                NavHost(navController = navController, startDestination = "name_input") {
                     composable(
-                        "main_menu",
+                        "name_input",
                         enterTransition = { fadeIn(animationSpec = tween(700)) },
                         exitTransition = { fadeOut(animationSpec = tween(700)) }
+                    ) {
+                        NameInputScreen(navController) { name ->
+                            playerName = name
+                            navController.navigate("main_menu")
+                        }
+                    }
+                    composable(
+                        "main_menu",
+                        enterTransition = { slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(700)) },
+                        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }, animationSpec = tween(700)) }
                     ) {
                         MainMenuScreen(navController)
                     }
                     composable(
                         "quiz_screen",
-                        enterTransition = { slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(700)) },
-                        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }, animationSpec = tween(700)) }
+                        enterTransition = { slideInVertically(initialOffsetY = { it }, animationSpec = tween(700)) },
+                        exitTransition = { slideOutVertically(targetOffsetY = { -it }, animationSpec = tween(700)) }
                     ) {
                         QuizScreen(navController, database, playerName)
                     }
