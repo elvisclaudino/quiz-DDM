@@ -3,6 +3,7 @@ package com.example.neyquiz.screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -14,13 +15,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
+import com.example.neyquiz.R
 import com.example.neyquiz.data.AppDatabase
 import com.example.neyquiz.data.PlayerScore
 import com.example.neyquiz.ui.theme.NeyquizTheme
@@ -41,56 +45,64 @@ fun LeaderboardScreen(navController: NavController, database: AppDatabase) {
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color.Black
+        color = MaterialTheme.colorScheme.background
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Leaderboard",
-                style = MaterialTheme.typography.headlineLarge,
-                modifier = Modifier.padding(16.dp),
-                fontWeight = FontWeight.Bold,
-                color = Color.White
+        Box(modifier = Modifier.fillMaxSize()) {
+            Image(
+                painter = painterResource(id = R.drawable.neymar_bg5),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
             )
-
-            AnimatedVisibility(
-                visible = isVisible,
-                enter = fadeIn(),
-                exit = fadeOut()
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column {
-                    scores.forEachIndexed { index, score ->
-                        Text(
-                            text = "${index + 1}. ${score.name}: ${score.score}",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = Color.White
-                        )
+                Text(
+                    text = "Leaderboard",
+                    style = MaterialTheme.typography.headlineLarge,
+                    modifier = Modifier.padding(16.dp),
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    Column {
+                        scores.forEachIndexed { index, score ->
+                            Text(
+                                text = "${index + 1}. ${score.name}: ${score.score}",
+                                style = MaterialTheme.typography.titleLarge,
+                                color = Color.White
+                            )
+                        }
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            Button(
-                onClick = { navController.navigate("main_menu") },
-                modifier = Modifier.padding(16.dp)
-                    .width(200.dp)
-                    .height(50.dp),
-                colors = ButtonDefaults.buttonColors(
-                    Color.Transparent,
-                    contentColor = Color.White,
-                ),
-                shape = RoundedCornerShape(8.dp),
-                border = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.5f).run {
-                    ButtonDefaults.outlinedButtonBorder
+                Button(
+                    onClick = { navController.navigate("main_menu") },
+                    modifier = Modifier.padding(16.dp)
+                        .width(200.dp)
+                        .height(50.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        Color.Transparent,
+                        contentColor = Color.White,
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+                    border = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.5f).run {
+                        ButtonDefaults.outlinedButtonBorder
+                    }
+                ) {
+                    Text("Voltar ao Menu")
                 }
-            ) {
-                Text("Voltar ao Menu")
             }
         }
     }

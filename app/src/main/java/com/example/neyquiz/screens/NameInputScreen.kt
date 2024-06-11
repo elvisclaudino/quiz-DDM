@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -18,14 +19,17 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.neyquiz.R
 import com.example.neyquiz.ui.theme.NeyquizTheme
 
 @Composable
@@ -37,85 +41,101 @@ fun NameInputScreen(navController: NavController, onNameEntered: (String) -> Uni
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color.Black
+        color = MaterialTheme.colorScheme.background
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            AnimatedVisibility(
-                visible = isVisible,
-                enter = fadeIn(),
-                exit = fadeOut()
+        Box(modifier = Modifier.fillMaxSize()) {
+            Image(
+                painter = painterResource(id = R.drawable.neymar_bg4),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = "Qual o seu nome?",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    Text(
+                        text = "Qual o seu nome?",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
 
-            AnimatedVisibility(
-                visible = isVisible,
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                TextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Nome") },
-                    modifier = Modifier.padding(16.dp),
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    TextField(
+                        value = name,
+                        onValueChange = { name = it },
+                        label = { Text("Nome") },
+                        modifier = Modifier.padding(16.dp),
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                keyboardController?.hide()
+                                if (name.isNotBlank()) {
+                                    onNameEntered(name)
+                                    navController.navigate("main_menu")
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        "Por favor, insira um nome válido",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        )
+                    )
+                }
+
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    Button(
+                        onClick = {
                             keyboardController?.hide()
                             if (name.isNotBlank()) {
+                                isVisible = false
                                 onNameEntered(name)
                                 navController.navigate("main_menu")
                             } else {
-                                Toast.makeText(context, "Por favor, insira um nome válido", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "Por favor, insira um nome válido",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
+                        },
+                        modifier = Modifier.padding(16.dp)
+                            .width(280.dp)
+                            .height(60.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            Color.Transparent,
+                            contentColor = Color.White,
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        border = androidx.compose.ui.graphics.Color.White.copy(alpha = 1f).run {
+                            ButtonDefaults.outlinedButtonBorder
                         }
-                    )
-                )
-            }
-
-            AnimatedVisibility(
-                visible = isVisible,
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                Button(
-                    onClick = {
-                        keyboardController?.hide()
-                        if (name.isNotBlank()) {
-                            isVisible = false
-                            onNameEntered(name)
-                            navController.navigate("main_menu")
-                        } else {
-                            Toast.makeText(context, "Por favor, insira um nome válido", Toast.LENGTH_SHORT).show()
-                        }
-                    },
-                    modifier = Modifier.padding(16.dp)
-                        .width(280.dp)
-                        .height(50.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        Color.Transparent,
-                        contentColor = Color.White,
-                    ),
-                    shape = RoundedCornerShape(8.dp),
-                    border = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.5f).run {
-                        ButtonDefaults.outlinedButtonBorder
+                    ) {
+                        Text("Entrar")
                     }
-                ) {
-                    Text("Entrar")
                 }
             }
         }

@@ -44,7 +44,7 @@ val questions = listOf(
         correctAnswerIndex = 3
     ),
     Question(
-        text = "Em que ano neymar fez sua estreia pela Seleção Pontuação?",
+        text = "Em que ano neymar fez sua estreia pela Seleção Brasileira?",
         imageUrl = "https://conteudo.imguol.com.br/c/esporte/c7/2017/12/15/neymar-agosto-de-2010---neymar-em-amistoso-do-brasil-contra-os-eua-1513370977587_v2_450x450.jpg",
         options = listOf("2009", "2010", "2011", "2012"),
         correctAnswerIndex = 1
